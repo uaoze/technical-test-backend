@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 public final class Wallet {
 
 	private final int walletId;
-	
 	private final BigDecimal balance;
 
 	public Wallet(int walletId, BigDecimal balance) {

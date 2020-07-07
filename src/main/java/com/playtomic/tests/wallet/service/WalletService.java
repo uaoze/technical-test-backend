@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.playtomic.tests.wallet.domain.Wallet;
 
-public interface WalletInfoService {
+public interface WalletService {
 	
-	Optional<Wallet> checkWallet(int walletId);
+	Optional<Wallet> getWallet(int walletId);
 }

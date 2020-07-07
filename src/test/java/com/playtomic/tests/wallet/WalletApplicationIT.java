@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.playtomic.tests.wallet.api.EndPoints;
-import com.playtomic.tests.wallet.service.WalletInfoService;
+import com.playtomic.tests.wallet.service.WalletService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,7 +37,7 @@ public class WalletApplicationIT {
 	private static final BigDecimal VALID_BALANCE = new BigDecimal(10);
 
 	@SpyBean
-	WalletInfoService walletInfoService;
+	WalletService walletService;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -54,7 +54,7 @@ public class WalletApplicationIT {
 	            mockMvc.perform(get(EndPoints.ENDPOINT_GET_WALLET_BY_ID, VALID_ID).contentType(MediaType.APPLICATION_JSON));
 
 	    response.andExpect(status().isOk());
-	    verify(walletInfoService, times(1)).checkWallet(eq(VALID_ID));
+	    verify(walletService, times(1)).getWallet(eq(VALID_ID));
 	    response.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8)); 
 	    response.andExpect(jsonPath("$.walletId", is(VALID_ID)));
 	    response.andExpect(jsonPath("$.balance", is(VALID_BALANCE)));
