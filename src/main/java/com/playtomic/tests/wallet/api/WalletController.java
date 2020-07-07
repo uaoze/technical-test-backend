@@ -65,13 +65,14 @@ public class WalletController {
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId,
 			@ApiParam(value = "The amount to discount", name = "amount", required = true) @PathVariable BigDecimal amount) {
 
+		Optional<BigDecimal> remainingBalance = Optional.empty();
 		try {
-			walletService.discountAmount(walletId, amount);
+			remainingBalance = walletService.discountAmount(walletId, amount);
 		} catch (BalanceBelowZeroException e) {
 			return ResponseEntity.status(500).build();
 		}
 		
-		return ResponseEntity.notFound().build();
+		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue()) : ResponseEntity.notFound().build();
 	}
 
 	private ResponseEntity<WalletDto> notFound() {

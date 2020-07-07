@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.playtomic.tests.wallet.domain.Wallet;
+import com.playtomic.tests.wallet.domain.WalletEntity;
 import com.playtomic.tests.wallet.domain.WalletEntityToWalletMapper;
 import com.playtomic.tests.wallet.h2.DBRepository;
 import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
@@ -38,7 +39,7 @@ public class WalletServiceH2DB implements WalletService {
     	if(wallet != null) {
     		if(wallet.getBalance().compareTo(amount) > 0) {
     			remainingBalance = wallet.getBalance().subtract(amount);
-    			repository.updateAmountForWallet(walletId, amount);
+    			repository.saveAndFlush(new WalletEntity(walletId, amount));
     		} else {
     			throw new BalanceBelowZeroException(walletId, amount);
     		}
