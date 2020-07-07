@@ -17,7 +17,7 @@ import com.playtomic.tests.wallet.domain.WalletEntityToWalletMapper;
 import com.playtomic.tests.wallet.h2.DBRepository;
 import com.playtomic.tests.wallet.service.WalletService;
 
-public class WalletInfoServiceTest {
+public class WalletServiceTest {
 
 	private static final int VALID_ID = 101;
 	private static final int INVALID_ID = 999;

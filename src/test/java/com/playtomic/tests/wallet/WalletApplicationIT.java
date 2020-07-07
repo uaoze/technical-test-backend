@@ -54,9 +54,8 @@ public class WalletApplicationIT {
 	            mockMvc.perform(get(EndPoints.ENDPOINT_GET_WALLET_BY_ID, VALID_ID).contentType(MediaType.APPLICATION_JSON));
 
 	    response.andExpect(status().isOk());
-	    verify(walletService, times(1)).getWallet(eq(VALID_ID));
 	    response.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8)); 
 	    response.andExpect(jsonPath("$.walletId", is(VALID_ID)));
-	    response.andExpect(jsonPath("$.balance", is(VALID_BALANCE)));
+	    response.andExpect(jsonPath("$.balance", is(VALID_BALANCE.intValue())));
 	}
 }
