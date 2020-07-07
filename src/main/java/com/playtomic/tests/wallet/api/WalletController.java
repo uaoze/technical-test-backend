@@ -68,6 +68,7 @@ public class WalletController {
 		try {
 			walletService.discountAmount(walletId, amount);
 		} catch (BalanceBelowZeroException e) {
+			return ResponseEntity.status(500).build();
 		}
 		
 		return ResponseEntity.notFound().build();
