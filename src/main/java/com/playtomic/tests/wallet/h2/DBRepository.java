@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.playtomic.tests.wallet.domain.WalletEntity;
 
 @Repository
-public interface DBRepository extends JpaRepository<WalletEntity, String> {
+public interface DBRepository extends JpaRepository<WalletEntity, Integer> {
 
   WalletEntity findByWalletId(int walletId);
 }

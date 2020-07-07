@@ -1,11 +1,9 @@
 package com.playtomic.tests.wallet.api;
 
-import java.math.BigDecimal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,15 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.playtomic.tests.wallet.api.dto.WalletDto;
 import com.playtomic.tests.wallet.api.dto.WalletToDtoMapper;
-import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.service.WalletService;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
+@Api
+@Validated
 public class WalletController {
 
 	private Logger log = LoggerFactory.getLogger(WalletController.class);
@@ -29,6 +29,11 @@ public class WalletController {
 	private WalletService walletService;
 
 	private WalletToDtoMapper walletToDtoMapper;
+
+	public WalletController(WalletService walletService, WalletToDtoMapper walletToDtoMapper) {
+		this.walletService = walletService;
+		this.walletToDtoMapper = walletToDtoMapper;
+	}
 
 	@RequestMapping("/")
 	void log() {
@@ -43,10 +48,11 @@ public class WalletController {
 	public ResponseEntity<WalletDto> getWallet(
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId) {
 
-		// TODO:
-		WalletDto walletDto = new WalletDto(101, new BigDecimal(10));
-		ResponseEntity<WalletDto> response = new ResponseEntity<>(walletDto, HttpStatus.OK);
-		
-		return response;
+		return (walletService.getWallet(walletId)).map(walletToDtoMapper).map(ResponseEntity::ok)
+				.orElseGet(this::notFound);
+	}
+
+	private ResponseEntity<WalletDto> notFound() {
+		return ResponseEntity.badRequest().build();
 	}
 }

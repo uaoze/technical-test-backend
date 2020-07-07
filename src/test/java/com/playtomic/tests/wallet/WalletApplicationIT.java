@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 
+import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.playtomic.tests.wallet.api.EndPoints;
+import com.playtomic.tests.wallet.domain.WalletEntity;
+import com.playtomic.tests.wallet.h2.DBRepository;
 import com.playtomic.tests.wallet.service.WalletService;
 
 @RunWith(SpringRunner.class)
@@ -34,7 +38,10 @@ import com.playtomic.tests.wallet.service.WalletService;
 public class WalletApplicationIT {
 	
 	private static final int VALID_ID = 101;
-	private static final BigDecimal VALID_BALANCE = new BigDecimal(10);
+	private static final BigDecimal VALID_BALANCE = new BigDecimal(10.0);
+	
+	@Autowired
+	private DBRepository repository;
 
 	@SpyBean
 	WalletService walletService;
@@ -44,7 +51,13 @@ public class WalletApplicationIT {
 
 	@Before
 	public void setUp() {
+		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
+		repository.save(walletEntity);
+	}
 
+	@After
+	public void cleanUp() {
+		repository.delete(VALID_ID);
 	}
 
 	@Test
@@ -54,8 +67,9 @@ public class WalletApplicationIT {
 	            mockMvc.perform(get(EndPoints.ENDPOINT_GET_WALLET_BY_ID, VALID_ID).contentType(MediaType.APPLICATION_JSON));
 
 	    response.andExpect(status().isOk());
+	    verify(walletService, times(1)).getWallet(eq(VALID_ID));
 	    response.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8)); 
 	    response.andExpect(jsonPath("$.walletId", is(VALID_ID)));
-	    response.andExpect(jsonPath("$.balance", is(VALID_BALANCE.intValue())));
+	    response.andExpect(jsonPath("$.balance", is(10.0)));
 	}
 }
