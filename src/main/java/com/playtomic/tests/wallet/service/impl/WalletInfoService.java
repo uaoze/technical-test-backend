@@ -1,6 +1,5 @@
 package com.playtomic.tests.wallet.service.impl;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -22,9 +21,9 @@ public class WalletInfoService implements com.playtomic.tests.wallet.service.Wal
 	}
 
 	@Override
-	public Optional<BigDecimal> checkWallet(int walletId) {    	
+	public Optional<Wallet> checkWallet(int walletId) {    	
     	Wallet wallet = walletEntityToWalletMapper.apply(repository.findByWalletId(walletId));
     	
-    	return (wallet != null) ? Optional.ofNullable(wallet.getBalance()) : Optional.empty();
+    	return Optional.ofNullable(wallet);
 	}
 }
