@@ -10,4 +10,6 @@ public interface WalletService {
 	Optional<Wallet> getWallet(int walletId);
 
 	Optional<BigDecimal> discountAmount(int walletId, BigDecimal amount) throws BalanceBelowZeroException;
+
+	Optional<BigDecimal> topupAmount(int walletId, BigDecimal amount);
 }

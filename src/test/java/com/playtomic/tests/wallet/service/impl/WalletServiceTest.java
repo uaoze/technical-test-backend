@@ -83,6 +83,18 @@ public class WalletServiceTest {
 		
 		walletService.discountAmount(VALID_ID, HUGE_AMOUNT);
 	}
+	
+	@Test
+	public void topupAmount_validIdAndAmount_AmountForToppingUPToWallet() {
+
+		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
+		given(repository.findByWalletId(VALID_ID)).willReturn(walletEntity);
+		
+		Optional<BigDecimal> remainingBalance = walletService.topupAmount(VALID_ID, VALID_AMOUNT);
+
+		assertTrue(remainingBalance.isPresent());
+		assertEquals(VALID_BALANCE.add(VALID_AMOUNT), remainingBalance.get());
+	}
 
 	private void assertExpectedWallet(Optional<Wallet> returnedWallet) {
 		assertEquals(VALID_ID, returnedWallet.get().getWalletId());
