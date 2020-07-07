@@ -15,6 +15,7 @@ import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.domain.WalletEntity;
 import com.playtomic.tests.wallet.domain.WalletEntityToWalletMapper;
 import com.playtomic.tests.wallet.h2.DBRepository;
+import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
 import com.playtomic.tests.wallet.service.WalletService;
 
 public class WalletServiceTest {
@@ -23,6 +24,7 @@ public class WalletServiceTest {
 	private static final int INVALID_ID = 999;
 	private static final BigDecimal VALID_BALANCE = new BigDecimal(10);
 	private static final BigDecimal VALID_AMOUNT = new BigDecimal(2);
+	private static final BigDecimal HUGE_AMOUNT = new BigDecimal(200);
 
 	private DBRepository repository = mock(DBRepository.class);
 	private WalletEntityToWalletMapper walletEntityToWalletMapper = new WalletEntityToWalletMapper();
@@ -52,7 +54,7 @@ public class WalletServiceTest {
 	}
 	
 	@Test
-	public void discountAmount_validIdAndAmount_AmountDiscountedToWallet() {
+	public void discountAmount_validIdAndAmount_AmountDiscountedToWallet() throws BalanceBelowZeroException {
 
 		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
 		given(repository.findByWalletId(VALID_ID)).willReturn(walletEntity);
@@ -64,13 +66,22 @@ public class WalletServiceTest {
 	}
 	
 	@Test
-	public void discountAmount_invalidId_noAmountDiscountedAsWalletDoesntExist() {
+	public void discountAmount_invalidId_noAmountDiscountedAsWalletDoesntExist() throws BalanceBelowZeroException {
 		
 		given(repository.findByWalletId(VALID_ID)).willReturn(null);
 		
 		Optional<BigDecimal> remainingBalance = walletService.discountAmount(INVALID_ID, VALID_AMOUNT);
 
 		assertFalse(remainingBalance.isPresent());
+	}
+	
+	@Test(expected = BalanceBelowZeroException.class)
+	public void discountAmount_validIdButAmountGreaterThanBalance_noAmountDiscountedAndExceptionThrown() throws BalanceBelowZeroException {
+
+		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
+		given(repository.findByWalletId(VALID_ID)).willReturn(walletEntity);
+		
+		walletService.discountAmount(VALID_ID, HUGE_AMOUNT);
 	}
 
 	private void assertExpectedWallet(Optional<Wallet> returnedWallet) {

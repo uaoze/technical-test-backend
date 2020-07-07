@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.domain.WalletEntityToWalletMapper;
 import com.playtomic.tests.wallet.h2.DBRepository;
+import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
 import com.playtomic.tests.wallet.service.WalletService;
 
 @Service
@@ -30,7 +31,7 @@ public class WalletServiceH2DB implements WalletService {
 	}
 
 	@Override
-	public Optional<BigDecimal> discountAmount(int walletId, BigDecimal amount) {
+	public Optional<BigDecimal> discountAmount(int walletId, BigDecimal amount) throws BalanceBelowZeroException {
     	Wallet wallet = walletEntityToWalletMapper.apply(repository.findByWalletId(walletId));
 		
     	BigDecimal remainingBalance = null;
@@ -38,7 +39,9 @@ public class WalletServiceH2DB implements WalletService {
     		if(wallet.getBalance().compareTo(amount) > 0) {
     			remainingBalance = wallet.getBalance().subtract(amount);
     			repository.updateAmountForWallet(walletId, amount);
-    		} 
+    		} else {
+    			throw new BalanceBelowZeroException(walletId, amount);
+    		}
     	} else {
     		return Optional.empty();
     	}
