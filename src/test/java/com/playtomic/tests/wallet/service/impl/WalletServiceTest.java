@@ -16,6 +16,8 @@ import com.playtomic.tests.wallet.domain.WalletEntity;
 import com.playtomic.tests.wallet.domain.WalletEntityToWalletMapper;
 import com.playtomic.tests.wallet.h2.DBRepository;
 import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
+import com.playtomic.tests.wallet.service.PaymentService;
+import com.playtomic.tests.wallet.service.PaymentServiceException;
 import com.playtomic.tests.wallet.service.WalletService;
 
 public class WalletServiceTest {
@@ -28,8 +30,10 @@ public class WalletServiceTest {
 
 	private DBRepository repository = mock(DBRepository.class);
 	private WalletEntityToWalletMapper walletEntityToWalletMapper = new WalletEntityToWalletMapper();
+	
+	private PaymentService paymentService = mock(ThirdPartyPaymentService.class);
 
-	private WalletService walletService = new WalletServiceH2DB(repository, walletEntityToWalletMapper);
+	private WalletService walletService = new WalletServiceH2DB(repository, walletEntityToWalletMapper, paymentService);
 
 	@Test
 	public void getWallet_validId_validBalance() {
@@ -68,7 +72,7 @@ public class WalletServiceTest {
 	@Test
 	public void discountAmount_invalidId_noAmountDiscountedAsWalletDoesntExist() throws BalanceBelowZeroException {
 		
-		given(repository.findByWalletId(VALID_ID)).willReturn(null);
+		given(repository.findByWalletId(INVALID_ID)).willReturn(null);
 		
 		Optional<BigDecimal> remainingBalance = walletService.discountAmount(INVALID_ID, VALID_AMOUNT);
 
@@ -85,7 +89,7 @@ public class WalletServiceTest {
 	}
 	
 	@Test
-	public void topupAmount_validIdAndAmount_AmountForToppingUPToWallet() {
+	public void topupAmount_validIdAndAmount_AmountForToppingUPToWallet() throws PaymentServiceException {
 
 		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
 		given(repository.findByWalletId(VALID_ID)).willReturn(walletEntity);
@@ -94,6 +98,16 @@ public class WalletServiceTest {
 
 		assertTrue(remainingBalance.isPresent());
 		assertEquals(VALID_BALANCE.add(VALID_AMOUNT), remainingBalance.get());
+	}
+	
+	@Test
+	public void topupAmount_invalidId_noAmountTopupAsWalletDoesntExist() throws PaymentServiceException {
+		
+		given(repository.findByWalletId(INVALID_ID)).willReturn(null);
+		
+		Optional<BigDecimal> remainingBalance = walletService.topupAmount(INVALID_ID, VALID_AMOUNT);
+
+		assertFalse(remainingBalance.isPresent());
 	}
 
 	private void assertExpectedWallet(Optional<Wallet> returnedWallet) {

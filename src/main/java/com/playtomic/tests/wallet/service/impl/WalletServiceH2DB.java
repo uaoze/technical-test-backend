@@ -10,6 +10,8 @@ import com.playtomic.tests.wallet.domain.WalletEntity;
 import com.playtomic.tests.wallet.domain.WalletEntityToWalletMapper;
 import com.playtomic.tests.wallet.h2.DBRepository;
 import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
+import com.playtomic.tests.wallet.service.PaymentService;
+import com.playtomic.tests.wallet.service.PaymentServiceException;
 import com.playtomic.tests.wallet.service.WalletService;
 
 @Service
@@ -18,10 +20,13 @@ public class WalletServiceH2DB implements WalletService {
 	private final DBRepository repository;
 
 	private final WalletEntityToWalletMapper walletEntityToWalletMapper;
+	
+	private final PaymentService paymentService;
 
-	public WalletServiceH2DB(DBRepository repository, WalletEntityToWalletMapper walletEntityToWalletMapper) {
+	public WalletServiceH2DB(DBRepository repository, WalletEntityToWalletMapper walletEntityToWalletMapper, PaymentService paymentService) {
 		this.repository = repository;
 		this.walletEntityToWalletMapper = walletEntityToWalletMapper;
+		this.paymentService = paymentService;
 	}
 
 	@Override
@@ -52,14 +57,14 @@ public class WalletServiceH2DB implements WalletService {
 	}
 
 	@Override
-	public Optional<BigDecimal> topupAmount(int walletId, BigDecimal amount) {
+	public Optional<BigDecimal> topupAmount(int walletId, BigDecimal amount) throws PaymentServiceException {
 
 		Wallet wallet = walletEntityToWalletMapper.apply(repository.findByWalletId(walletId));
 
 		BigDecimal remainingBalance = null;
 		if (wallet != null) {
+			paymentService.charge(amount);
 			remainingBalance = wallet.getBalance().add(amount);
-			repository.saveAndFlush(new WalletEntity(walletId, amount));
 		} 
 
 		return Optional.ofNullable(remainingBalance);
