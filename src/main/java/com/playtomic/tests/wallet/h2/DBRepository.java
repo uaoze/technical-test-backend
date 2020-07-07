@@ -13,6 +13,6 @@ public interface DBRepository extends JpaRepository<WalletEntity, Integer> {
 
   WalletEntity findByWalletId(int walletId);
   
-  @Query("update WalletEntity w set balance = ?1 where w.walletId = ?2")
+  @Query("update WalletEntity w set w.balance = ?1 where w.walletId = ?2")
   void updateAmountForWallet(int walletId, BigDecimal amount);
 }

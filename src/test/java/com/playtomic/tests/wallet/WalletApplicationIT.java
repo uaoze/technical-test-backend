@@ -39,6 +39,7 @@ public class WalletApplicationIT {
 	private static final int VALID_ID = 101;
 	private static final int INVALID_ID = 999;
 	private static final BigDecimal VALID_BALANCE = new BigDecimal(10.0);
+	private static final BigDecimal VALID_AMOUNT = new BigDecimal(2);
 	
 	@Autowired
 	private DBRepository repository;
@@ -81,5 +82,15 @@ public class WalletApplicationIT {
 
 	    response.andExpect(status().isNotFound());
 	    verify(walletService, times(1)).getWallet(eq(INVALID_ID));
+	}
+
+	@Test
+	public void shouldNotDiscountTheAmountAsTheSpecifiedIdDoesntExist() throws Exception {
+
+	    final ResultActions response =
+	            mockMvc.perform(get(EndPoints.ENDPOINT_DISCOUNT_AMOUNT, INVALID_ID, VALID_AMOUNT));
+
+	    response.andExpect(status().isNotFound());
+	    verify(walletService, times(1)).discountAmount(eq(INVALID_ID), eq(VALID_AMOUNT));
 	}
 }
