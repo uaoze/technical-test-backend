@@ -25,6 +25,6 @@ public class WalletInfoService implements com.playtomic.tests.wallet.service.Wal
 	public Optional<BigDecimal> checkWallet(int walletId) {    	
     	Wallet wallet = walletEntityToWalletMapper.apply(repository.findByWalletId(walletId));
     	
-    	return Optional.ofNullable(wallet.getBalance());
+    	return (wallet != null) ? Optional.ofNullable(wallet.getBalance()) : Optional.empty();
 	}
 }

@@ -1,8 +1,9 @@
 package com.playtomic.tests.wallet.service.impl;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import com.playtomic.tests.wallet.h2.DBRepository;
 public class WalletInfoServiceTest {
 
 	private static final int VALID_ID = 101;
+	private static final int INVALID_ID = 999;
 	private static final BigDecimal VALID_BALANCE = new BigDecimal(10);
 	
 	private DBRepository repository = mock(DBRepository.class);
@@ -32,5 +34,15 @@ public class WalletInfoServiceTest {
     	Optional<BigDecimal> balance = walletInfoService.checkWallet(VALID_ID);
     	
     	assertTrue(balance.isPresent());
+    }
+    
+    @Test
+    public void checkWallet_notExistingId_noBalanceReturned() {
+    	
+    	given(repository.findByWalletId(INVALID_ID)).willReturn(null);
+    	
+    	Optional<BigDecimal> balance = walletInfoService.checkWallet(INVALID_ID);
+    	
+    	assertFalse(balance.isPresent());
     }
 }
