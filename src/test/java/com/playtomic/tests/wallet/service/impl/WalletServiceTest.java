@@ -29,7 +29,7 @@ public class WalletServiceTest {
 	private WalletService walletService = new WalletServiceH2DB(repository, walletEntityToWalletMapper);
 
 	@Test
-	public void checkWallet_validId_validBalance() {
+	public void getWallet_validId_validBalance() {
 
 		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
 		given(repository.findByWalletId(VALID_ID)).willReturn(walletEntity);
@@ -41,7 +41,7 @@ public class WalletServiceTest {
 	}
 
 	@Test
-	public void checkWallet_notExistingId_noBalanceReturned() {
+	public void getWallet_notExistingId_noBalanceReturned() {
 
 		given(repository.findByWalletId(INVALID_ID)).willReturn(null);
 
