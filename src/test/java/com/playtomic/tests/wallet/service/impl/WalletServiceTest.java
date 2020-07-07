@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.mockito.stubbing.Answer;
 
 import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.domain.WalletEntity;
@@ -22,6 +23,7 @@ public class WalletServiceTest {
 	private static final int VALID_ID = 101;
 	private static final int INVALID_ID = 999;
 	private static final BigDecimal VALID_BALANCE = new BigDecimal(10);
+	private static final BigDecimal VALID_AMOUNT = new BigDecimal(2);
 
 	private DBRepository repository = mock(DBRepository.class);
 	private WalletEntityToWalletMapper walletEntityToWalletMapper = new WalletEntityToWalletMapper();
@@ -48,6 +50,18 @@ public class WalletServiceTest {
 		Optional<Wallet> returnedWallet = walletService.getWallet(INVALID_ID);
 
 		assertFalse(returnedWallet.isPresent());
+	}
+	
+	@Test
+	public void discountAmount_validIdAndAmount_AmountDiscountedToWallet() {
+
+		WalletEntity walletEntity = new WalletEntity(VALID_ID, VALID_BALANCE);
+		given(repository.findByWalletId(VALID_ID)).willReturn(walletEntity);
+		
+		Optional<BigDecimal> remainingBalance = walletService.discountAmount(VALID_ID, VALID_AMOUNT);
+
+		assertTrue(remainingBalance.isPresent());
+		assertEquals(VALID_BALANCE.subtract(VALID_AMOUNT), remainingBalance.get());
 	}
 
 	private void assertExpectedWallet(Optional<Wallet> returnedWallet) {

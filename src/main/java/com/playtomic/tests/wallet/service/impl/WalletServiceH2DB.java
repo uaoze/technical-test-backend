@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.service.impl;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -22,9 +23,30 @@ public class WalletServiceH2DB implements WalletService {
 	}
 
 	@Override
-	public Optional<Wallet> getWallet(int walletId) {    	
+	public Optional<Wallet> getWallet(int walletId) {
     	Wallet wallet = walletEntityToWalletMapper.apply(repository.findByWalletId(walletId));
     	
     	return Optional.ofNullable(wallet);
+	}
+
+	@Override
+	public Optional<BigDecimal> discountAmount(int walletId, BigDecimal amount) {
+    	Wallet wallet = walletEntityToWalletMapper.apply(repository.findByWalletId(walletId));
+		
+    	BigDecimal remainingBalance = null;
+    	if(wallet != null) {
+    		if(wallet.getBalance().compareTo(amount) > 0) {
+    			remainingBalance = wallet.getBalance().subtract(amount);
+    			repository.updateAmountForWallet(walletId, amount);
+    		} else {
+    			// TODO - deja la cuenta en negativo -> exception
+        		return Optional.empty(); // TODO quitar esto
+    		}
+    	} else {
+    		// TODO - no existe el wallet
+    		return Optional.empty();
+    	}
+    	
+    	return Optional.ofNullable(remainingBalance);
 	}
 }
