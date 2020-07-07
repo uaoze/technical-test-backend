@@ -65,6 +65,11 @@ public class WalletController {
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId,
 			@ApiParam(value = "The amount to discount", name = "amount", required = true) @PathVariable BigDecimal amount) {
 
+		try {
+			walletService.discountAmount(walletId, amount);
+		} catch (BalanceBelowZeroException e) {
+		}
+		
 		return ResponseEntity.notFound().build();
 	}
 
