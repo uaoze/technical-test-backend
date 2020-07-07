@@ -38,12 +38,8 @@ public class WalletServiceH2DB implements WalletService {
     		if(wallet.getBalance().compareTo(amount) > 0) {
     			remainingBalance = wallet.getBalance().subtract(amount);
     			repository.updateAmountForWallet(walletId, amount);
-    		} else {
-    			// TODO - deja la cuenta en negativo -> exception
-        		return Optional.empty(); // TODO quitar esto
-    		}
+    		} 
     	} else {
-    		// TODO - no existe el wallet
     		return Optional.empty();
     	}
     	

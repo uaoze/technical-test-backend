@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.Test;
-import org.mockito.stubbing.Answer;
 
 import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.domain.WalletEntity;
@@ -62,6 +61,16 @@ public class WalletServiceTest {
 
 		assertTrue(remainingBalance.isPresent());
 		assertEquals(VALID_BALANCE.subtract(VALID_AMOUNT), remainingBalance.get());
+	}
+	
+	@Test
+	public void discountAmount_invalidId_noAmountDiscountedAsWalletDoesntExist() {
+		
+		given(repository.findByWalletId(VALID_ID)).willReturn(null);
+		
+		Optional<BigDecimal> remainingBalance = walletService.discountAmount(INVALID_ID, VALID_AMOUNT);
+
+		assertFalse(remainingBalance.isPresent());
 	}
 
 	private void assertExpectedWallet(Optional<Wallet> returnedWallet) {
