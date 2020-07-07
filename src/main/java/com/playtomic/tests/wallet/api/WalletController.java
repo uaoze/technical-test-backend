@@ -53,6 +53,6 @@ public class WalletController {
 	}
 
 	private ResponseEntity<WalletDto> notFound() {
-		return ResponseEntity.badRequest().build();
+		return ResponseEntity.notFound().build();
 	}
 }

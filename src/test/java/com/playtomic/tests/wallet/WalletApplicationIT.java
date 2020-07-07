@@ -36,8 +36,9 @@ import com.playtomic.tests.wallet.service.WalletService;
 @AutoConfigureMockMvc
 @ActiveProfiles(profiles = "test")
 public class WalletApplicationIT {
-	
+
 	private static final int VALID_ID = 101;
+	private static final int INVALID_ID = 999;
 	private static final BigDecimal VALID_BALANCE = new BigDecimal(10.0);
 	
 	@Autowired
@@ -71,5 +72,15 @@ public class WalletApplicationIT {
 	    response.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8)); 
 	    response.andExpect(jsonPath("$.walletId", is(VALID_ID)));
 	    response.andExpect(jsonPath("$.balance", is(10.0)));
+	}
+
+	@Test
+	public void shouldNotGetAnyWalletAsTheSpecifiedIdDoesntExist() throws Exception {
+
+	    final ResultActions response =
+	            mockMvc.perform(get(EndPoints.ENDPOINT_GET_WALLET_BY_ID, INVALID_ID).contentType(MediaType.APPLICATION_JSON));
+
+	    response.andExpect(status().isNotFound());
+	    verify(walletService, times(1)).getWallet(eq(INVALID_ID));
 	}
 }
