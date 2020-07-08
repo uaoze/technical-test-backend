@@ -128,4 +128,14 @@ public class WalletApplicationIT {
 	    response.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8)); 
 	    response.andExpect(jsonPath("$", is(210.0)));
 	}
+
+	@Test
+	public void shouldNotTopupTheAmountAsTheSpecifiedIdDoesntExist() throws Exception {
+
+	    final ResultActions response =
+	            mockMvc.perform(get(EndPoints.ENDPOINT_TOPUP_AMOUNT, INVALID_ID, HUGE_AMOUNT));
+
+	    response.andExpect(status().isNotFound());
+	    verify(walletService, times(1)).topupAmount(eq(INVALID_ID), eq(HUGE_AMOUNT));
+	}
 }
