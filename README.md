@@ -25,3 +25,9 @@ Ten en cuenta que es un servicio que conviviría en un entorno de microservicios
 
 Le puedes dedicar el tiempo que quieras, pero hemos estimado que 3-4 horas es suficiente para demostrar  [los requisitos del puesto.](OFERTA.md#requisitos)
  No hace falta que lo documentes pero puedes anotar todo lo que quieras como explicación o justificación de lo que hagas o dejes sin hacer.
+ 
+*DEVELOPMENT NOTES*
+
+This development repository was created for the technical test for Juanjo Acosta and it was forked from https://github.com/syltek/technical-test-backend/tree/app/exercise-1.
+
+You could also check the API on swagger: http://127.0.0.1:8090/swagger-ui.html#/wallet-controller

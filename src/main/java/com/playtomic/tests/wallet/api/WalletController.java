@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.playtomic.tests.wallet.api.dto.WalletDto;
 import com.playtomic.tests.wallet.api.dto.WalletToDtoMapper;
-import com.playtomic.tests.wallet.domain.Wallet;
 import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
 import com.playtomic.tests.wallet.service.PaymentServiceException;
 import com.playtomic.tests.wallet.service.WalletService;
@@ -55,15 +54,9 @@ public class WalletController {
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId) {
 
 		log.info("Get operation: " + EndPoints.ENDPOINT_GET_WALLET_BY_ID + " with walletId = " + walletId);
-		
-		Optional<Wallet> wallet = walletService.getWallet(walletId);//wallet = Optional.of(new Wallet(101, new BigDecimal(10)));// TODO - j
-		
-		if(wallet.isPresent()) {
-			WalletDto dto = walletToDtoMapper.apply(wallet.get());
-			return ResponseEntity.ok().body(dto);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+
+		return (walletService.getWallet(walletId)).map(walletToDtoMapper).map(ResponseEntity::ok)
+				.orElseGet(this::notFound);
 	}
 
 	@GetMapping(EndPoints.ENDPOINT_DISCOUNT_AMOUNT)
