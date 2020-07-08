@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.playtomic.tests.wallet.api.dto.WalletDto;
 import com.playtomic.tests.wallet.api.dto.WalletToDtoMapper;
 import com.playtomic.tests.wallet.service.BalanceBelowZeroException;
+import com.playtomic.tests.wallet.service.PaymentServiceException;
 import com.playtomic.tests.wallet.service.WalletService;
 
 import io.swagger.annotations.Api;
@@ -58,10 +59,11 @@ public class WalletController {
 
 	@GetMapping(EndPoints.ENDPOINT_DISCOUNT_AMOUNT)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 400, message = "balance below zero after discount amount"),
 			@ApiResponse(code = 404, message = "wallet not found"),
 			@ApiResponse(code = 500, message = "server error") })
 	@ApiOperation(value = "Discount the amount to the wallet", response = BigDecimal.class)
-	public ResponseEntity<Float> getWallet(
+	public ResponseEntity<Float> discountAmount(
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId,
 			@ApiParam(value = "The amount to discount", name = "amount", required = true) @PathVariable BigDecimal amount) {
 
@@ -69,7 +71,27 @@ public class WalletController {
 		try {
 			remainingBalance = walletService.discountAmount(walletId, amount);
 		} catch (BalanceBelowZeroException e) {
-			return ResponseEntity.status(500).build();
+			return ResponseEntity.status(400).build();
+		}
+		
+		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue()) : ResponseEntity.notFound().build();
+	}
+
+	@GetMapping(EndPoints.ENDPOINT_TOPUP_AMOUNT)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 400, message = "amount below the threshold for a topup"),
+			@ApiResponse(code = 404, message = "wallet not found"),
+			@ApiResponse(code = 500, message = "server error") })
+	@ApiOperation(value = "Discount the amount to the wallet", response = BigDecimal.class)
+	public ResponseEntity<Float> topupAmount(
+			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId,
+			@ApiParam(value = "The amount to topup", name = "amount", required = true) @PathVariable BigDecimal amount) {
+
+		Optional<BigDecimal> remainingBalance;
+		try {
+			remainingBalance = walletService.topupAmount(walletId, amount);
+		} catch (PaymentServiceException e) {
+			return ResponseEntity.status(400).build();
 		}
 		
 		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue()) : ResponseEntity.notFound().build();

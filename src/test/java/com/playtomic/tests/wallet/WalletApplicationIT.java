@@ -113,7 +113,19 @@ public class WalletApplicationIT {
 	    final ResultActions response =
 	            mockMvc.perform(get(EndPoints.ENDPOINT_DISCOUNT_AMOUNT, VALID_ID, HUGE_AMOUNT));
 
-	    response.andExpect(status().is(500));
+	    response.andExpect(status().is(400));
 	    verify(walletService, times(1)).discountAmount(eq(VALID_ID), eq(HUGE_AMOUNT));
+	}
+	
+	@Test
+	public void shouldTopupTheAmountForTheSpecifiedId() throws Exception {
+
+	    final ResultActions response =
+	            mockMvc.perform(get(EndPoints.ENDPOINT_TOPUP_AMOUNT, VALID_ID, HUGE_AMOUNT));
+
+	    response.andExpect(status().isOk());
+	    verify(walletService, times(1)).topupAmount(eq(VALID_ID), eq(HUGE_AMOUNT));
+	    response.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8)); 
+	    response.andExpect(jsonPath("$", is(210.0)));
 	}
 }
