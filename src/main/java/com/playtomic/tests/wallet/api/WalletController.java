@@ -53,6 +53,8 @@ public class WalletController {
 	public ResponseEntity<WalletDto> getWallet(
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId) {
 
+		log.info("Get operation: " + EndPoints.ENDPOINT_GET_WALLET_BY_ID + " with walletId = " + walletId);
+
 		return (walletService.getWallet(walletId)).map(walletToDtoMapper).map(ResponseEntity::ok)
 				.orElseGet(this::notFound);
 	}
@@ -67,14 +69,17 @@ public class WalletController {
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId,
 			@ApiParam(value = "The amount to discount", name = "amount", required = true) @PathVariable BigDecimal amount) {
 
+		log.info("Get operation: " + EndPoints.ENDPOINT_DISCOUNT_AMOUNT + " with walletId = " + walletId + " and amount = " + amount);
+
 		Optional<BigDecimal> remainingBalance = Optional.empty();
 		try {
 			remainingBalance = walletService.discountAmount(walletId, amount);
 		} catch (BalanceBelowZeroException e) {
 			return ResponseEntity.status(400).build();
 		}
-		
-		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue()) : ResponseEntity.notFound().build();
+
+		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue())
+				: ResponseEntity.notFound().build();
 	}
 
 	@GetMapping(EndPoints.ENDPOINT_TOPUP_AMOUNT)
@@ -87,14 +92,17 @@ public class WalletController {
 			@ApiParam(value = "The wallet identifier", name = "walletId", required = true) @PathVariable int walletId,
 			@ApiParam(value = "The amount to topup", name = "amount", required = true) @PathVariable BigDecimal amount) {
 
+		log.info("Get operation: " + EndPoints.ENDPOINT_TOPUP_AMOUNT + " with walletId = " + walletId + " and amount = " + amount);
+
 		Optional<BigDecimal> remainingBalance;
 		try {
 			remainingBalance = walletService.topupAmount(walletId, amount);
 		} catch (PaymentServiceException e) {
 			return ResponseEntity.status(400).build();
 		}
-		
-		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue()) : ResponseEntity.notFound().build();
+
+		return (remainingBalance.isPresent()) ? ResponseEntity.ok().body(remainingBalance.get().floatValue())
+				: ResponseEntity.notFound().build();
 	}
 
 	private ResponseEntity<WalletDto> notFound() {
